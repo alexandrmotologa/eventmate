@@ -32,23 +32,23 @@ export function seedDemoData(): void {
     30  // 30 min intervals
   );
 
-  // 6 participants
+  // 6 participants (Alex is marked as required organizer)
   const participants = [
-    { id: 'p-alex', name: 'Alex Motologa', color: '#10B981', tgId: '1001' },
-    { id: 'p-elena', name: 'Elena Popescu', color: '#3B82F6', tgId: '1002' },
-    { id: 'p-bogdan', name: 'Bogdan Ionescu', color: '#F59E0B', tgId: '1003' },
-    { id: 'p-maria', name: 'Maria Radu', color: '#EC4899', tgId: '1004' },
-    { id: 'p-stefan', name: 'Stefan Dumitru', color: '#8B5CF6', tgId: '1005' },
-    { id: 'p-irina', name: 'Irina Vasilescu', color: '#06B6D4', tgId: '1006' },
+    { id: 'p-alex', name: 'Alex Motologa', color: '#10B981', tgId: '1001', isRequired: true },
+    { id: 'p-elena', name: 'Elena Popescu', color: '#3B82F6', tgId: '1002', isRequired: false },
+    { id: 'p-bogdan', name: 'Bogdan Ionescu', color: '#F59E0B', tgId: '1003', isRequired: false },
+    { id: 'p-maria', name: 'Maria Radu', color: '#EC4899', tgId: '1004', isRequired: false },
+    { id: 'p-stefan', name: 'Stefan Dumitru', color: '#8B5CF6', tgId: '1005', isRequired: false },
+    { id: 'p-irina', name: 'Irina Vasilescu', color: '#06B6D4', tgId: '1006', isRequired: false },
   ];
 
   const insertParticipant = db.prepare(`
-    INSERT INTO participants (id, event_id, telegram_user_id, name, avatar_color)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO participants (id, event_id, telegram_user_id, name, avatar_color, is_required)
+    VALUES (?, ?, ?, ?, ?, ?)
   `);
 
   for (const p of participants) {
-    insertParticipant.run(p.id, DEMO_EVENT_ID, p.tgId, p.name, p.color);
+    insertParticipant.run(p.id, DEMO_EVENT_ID, p.tgId, p.name, p.color, p.isRequired ? 1 : 0);
   }
 
   // Seed availability slots
@@ -111,19 +111,51 @@ export function seedDemoData(): void {
   );
 
   const options = [
-    { id: 'opt-pizza', text: 'Trattoria Roma (Wood-fired Pizza & Pasta)', icon: '🍕', order: 1 },
-    { id: 'opt-sushi', text: 'Sushi Master (Sashimi, Nigiri & Rolls)', icon: '🍣', order: 2 },
-    { id: 'opt-burger', text: 'Craft Burger Lab (Gourmet Smash & Truffle Fries)', icon: '🍔', order: 3 },
-    { id: 'opt-taco', text: 'Taqueria Fiesta (Birria Tacos & Churros)', icon: '🌮', order: 4 },
+    {
+      id: 'opt-pizza',
+      text: 'Trattoria Roma',
+      icon: '🍕',
+      order: 1,
+      mapsUrl: 'https://maps.google.com/?q=Trattoria+Roma',
+      priceLevel: '$$',
+      details: 'Wood-fired sourdough pizza, outdoor terrace & fresh truffle pasta',
+    },
+    {
+      id: 'opt-sushi',
+      text: 'Sushi Master',
+      icon: '🍣',
+      order: 2,
+      mapsUrl: 'https://maps.google.com/?q=Sushi+Master',
+      priceLevel: '$$$',
+      details: 'Omakase sashimi, nigiri bar & artisanal craft sake',
+    },
+    {
+      id: 'opt-burger',
+      text: 'Craft Burger Lab',
+      icon: '🍔',
+      order: 3,
+      mapsUrl: 'https://maps.google.com/?q=Craft+Burger+Lab',
+      priceLevel: '$$',
+      details: 'Dry-aged beef smash burgers, rosemary parmesan fries & IPA tap',
+    },
+    {
+      id: 'opt-taco',
+      text: 'Taqueria Fiesta',
+      icon: '🌮',
+      order: 4,
+      mapsUrl: 'https://maps.google.com/?q=Taqueria+Fiesta',
+      priceLevel: '$',
+      details: 'Slow-cooked birria tacos, loaded guacamole & hot cinnamon churros',
+    },
   ];
 
   const insertOption = db.prepare(`
-    INSERT INTO poll_options (id, poll_id, text, icon, display_order)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO poll_options (id, poll_id, text, icon, maps_url, price_level, details, display_order)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   for (const opt of options) {
-    insertOption.run(opt.id, DEMO_POLL_ID, opt.text, opt.icon, opt.order);
+    insertOption.run(opt.id, DEMO_POLL_ID, opt.text, opt.icon, opt.mapsUrl, opt.priceLevel, opt.details, opt.order);
   }
 
   // Seed Ballots

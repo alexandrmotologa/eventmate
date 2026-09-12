@@ -49,13 +49,16 @@ Traditional availability pollers evaluate each time block in isolation. EventMat
 1. **Quorum matrix construction**:
    - For each 30-minute block key (`YYYY-MM-DDTHH:mm`), tally participants marked `AVAILABLE` (1.0 weight) and `TENTATIVE` (0.5 weight).
    - Compute quorum percentage: $\text{pct} = \text{round}((\text{available} + 0.5 \times \text{tentative}) / \text{total} \times 100)$.
-2. **Sliding window scan**:
+2. **Required participant constraint**:
+   - Participants flagged with `isRequired = true` (for example, event hosts or essential team leads) act as strict preconditions.
+   - If any required participant is not available for all slots across a candidate window, that window is immediately excluded from the candidate list, regardless of general quorum.
+3. **Sliding window scan**:
    - Given a required meeting duration $D$ (default 60 minutes) and block duration $S$ (30 minutes), calculate window length $W = D / S$ blocks.
    - For each day in the event, slide a window of length $W$ over the day's time slots.
    - A participant is considered available for the window only if they are available across every block within that window.
-3. **Scoring function**:
+4. **Scoring function**:
    - $\text{score} = \text{quorumPercentage} + \text{fullAttendanceBonus}$.
    - Windows with 100% attendance receive a 25-point priority bonus.
-4. **Deduplication and ranking**:
+5. **Deduplication and ranking**:
    - Windows are ranked descending by score and attendee count.
    - Overlapping windows on the same date with identical start times are deduplicated to yield the top three distinct options.

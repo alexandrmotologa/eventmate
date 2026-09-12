@@ -46,6 +46,7 @@ export function getDatabase(customPath?: string): DatabaseSync {
       telegram_user_id TEXT,
       name TEXT NOT NULL,
       avatar_color TEXT NOT NULL DEFAULT '#10B981',
+      is_required INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       UNIQUE(event_id, name)
     );
@@ -74,6 +75,9 @@ export function getDatabase(customPath?: string): DatabaseSync {
       poll_id TEXT NOT NULL REFERENCES polls(id) ON DELETE CASCADE,
       text TEXT NOT NULL,
       icon TEXT DEFAULT '📌',
+      maps_url TEXT,
+      price_level TEXT,
+      details TEXT,
       display_order INTEGER NOT NULL DEFAULT 0
     );
 
@@ -92,6 +96,22 @@ export function getDatabase(customPath?: string): DatabaseSync {
     CREATE INDEX IF NOT EXISTS idx_participants_event ON participants(event_id);
     CREATE INDEX IF NOT EXISTS idx_ballots_poll ON ranked_ballots(poll_id);
   `);
+
+  // Safe backward-compatible migrations
+  try {
+    db.exec('ALTER TABLE participants ADD COLUMN is_required INTEGER NOT NULL DEFAULT 0;');
+  } catch {
+    // Column already exists
+  }
+  try {
+    db.exec('ALTER TABLE poll_options ADD COLUMN maps_url TEXT;');
+  } catch {}
+  try {
+    db.exec('ALTER TABLE poll_options ADD COLUMN price_level TEXT;');
+  } catch {}
+  try {
+    db.exec('ALTER TABLE poll_options ADD COLUMN details TEXT;');
+  } catch {}
 
   dbInstance = db;
   return dbInstance;

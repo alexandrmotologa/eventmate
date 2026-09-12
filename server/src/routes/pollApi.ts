@@ -7,7 +7,13 @@ interface CreatePollBody {
   eventId?: string;
   title: string;
   description?: string;
-  options: { text: string; icon?: string }[];
+  options: {
+    text: string;
+    icon?: string;
+    mapsUrl?: string;
+    priceLevel?: string;
+    details?: string;
+  }[];
 }
 
 interface CastVoteBody {
@@ -30,7 +36,7 @@ export async function registerPollRoutes(app: FastifyInstance): Promise<void> {
     }
 
     const options: any[] = db
-      .prepare('SELECT id, text, icon, display_order as displayOrder FROM poll_options WHERE poll_id = ? ORDER BY display_order ASC')
+      .prepare('SELECT id, text, icon, maps_url as mapsUrl, price_level as priceLevel, details, display_order as displayOrder FROM poll_options WHERE poll_id = ? ORDER BY display_order ASC')
       .all(pollId);
 
     const rawBallots: any[] = db
@@ -76,13 +82,22 @@ export async function registerPollRoutes(app: FastifyInstance): Promise<void> {
     `).run(pollId, body.eventId || null, body.title, body.description || '', 'OPEN');
 
     const insertOpt = db.prepare(`
-      INSERT INTO poll_options (id, poll_id, text, icon, display_order)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO poll_options (id, poll_id, text, icon, maps_url, price_level, details, display_order)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     body.options.forEach((opt, idx) => {
       const optId = 'opt-' + Date.now().toString(36) + '-' + (idx + 1);
-      insertOpt.run(optId, pollId, opt.text, opt.icon || '📌', idx + 1);
+      insertOpt.run(
+        optId,
+        pollId,
+        opt.text,
+        opt.icon || '📌',
+        opt.mapsUrl || null,
+        opt.priceLevel || null,
+        opt.details || null,
+        idx + 1
+      );
     });
 
     return reply.status(201).send({ id: pollId, title: body.title, optionCount: body.options.length });

@@ -17,6 +17,7 @@ export interface Participant {
   id: string;
   name: string;
   avatarColor: string;
+  isRequired?: boolean;
   telegramUserId?: string | null;
   createdAt?: string;
 }
@@ -33,8 +34,8 @@ export interface SlotQuorum {
   tentativeCount: number;
   totalParticipants: number;
   quorumPercentage: number;
-  availableMembers: { id: string; name: string; avatarColor: string; state: 'AVAILABLE' | 'TENTATIVE' }[];
-  busyMembers: { id: string; name: string; avatarColor: string }[];
+  availableMembers: { id: string; name: string; avatarColor: string; state: 'AVAILABLE' | 'TENTATIVE'; isRequired?: boolean }[];
+  busyMembers: { id: string; name: string; avatarColor: string; isRequired?: boolean }[];
 }
 
 export interface GoldenHourWindow {
@@ -54,6 +55,9 @@ export interface PollOption {
   id: string;
   text: string;
   icon: string;
+  mapsUrl?: string | null;
+  priceLevel?: string | null;
+  details?: string | null;
   displayOrder: number;
 }
 

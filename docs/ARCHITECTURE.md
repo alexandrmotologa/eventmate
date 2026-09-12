@@ -68,6 +68,7 @@ Members participating in an event.
 - `telegram_user_id` (TEXT): Optional Telegram user ID.
 - `name` (TEXT NOT NULL): Member display name.
 - `avatar_color` (TEXT NOT NULL): Distinct color hex for visual badges.
+- `is_required` (INTEGER NOT NULL DEFAULT 0): VIP flag; when set to 1, Golden Hour windows must include this member.
 - `created_at` (TEXT NOT NULL): Timestamp.
 
 ### 3. availability_slots
@@ -95,6 +96,9 @@ Candidates or options available for voting in a poll.
 - `poll_id` (TEXT NOT NULL): Foreign key referencing `polls(id)`.
 - `text` (TEXT NOT NULL): Label.
 - `icon` (TEXT): Associated emoji or icon.
+- `maps_url` (TEXT): Optional external location or Google Maps link.
+- `price_level` (TEXT): Optional budget indicator (e.g. `$`, `$$`, `$$$`).
+- `details` (TEXT): Optional notes or menu highlights.
 - `display_order` (INTEGER NOT NULL): Default sort position.
 
 ### 6. ranked_ballots

@@ -2,6 +2,7 @@ export interface Participant {
   id: string;
   name: string;
   avatarColor: string;
+  isRequired?: boolean;
 }
 
 export interface SlotAvailability {
@@ -16,8 +17,8 @@ export interface SlotQuorum {
   tentativeCount: number;
   totalParticipants: number;
   quorumPercentage: number;
-  availableMembers: { id: string; name: string; avatarColor: string; state: 'AVAILABLE' | 'TENTATIVE' }[];
-  busyMembers: { id: string; name: string; avatarColor: string }[];
+  availableMembers: { id: string; name: string; avatarColor: string; state: 'AVAILABLE' | 'TENTATIVE'; isRequired?: boolean }[];
+  busyMembers: { id: string; name: string; avatarColor: string; isRequired?: boolean }[];
 }
 
 export interface GoldenHourWindow {
@@ -72,6 +73,7 @@ export function computeQuorumMatrix(
           name: p.name,
           avatarColor: p.avatarColor,
           state: s.state,
+          isRequired: p.isRequired,
         });
         availableIds.add(p.id);
 
@@ -90,6 +92,7 @@ export function computeQuorumMatrix(
           id: p.id,
           name: p.name,
           avatarColor: p.avatarColor,
+          isRequired: p.isRequired,
         });
       }
     }
@@ -172,6 +175,16 @@ export function findGoldenHours(
         } else {
           missingAttendees.push(p);
         }
+      }
+
+      // Filter by required participants: if any required participant is missing, this window cannot be a Golden Hour
+      const requiredParticipants = participants.filter((p) => p.isRequired);
+      const hasAllRequired = requiredParticipants.every((rp) =>
+        commonAttendees.some((ca) => ca.id === rp.id)
+      );
+
+      if (requiredParticipants.length > 0 && !hasAllRequired) {
+        continue;
       }
 
       const availableCount = commonAttendees.length;

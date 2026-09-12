@@ -26,32 +26,44 @@ EventMate uses the **SyncOtter** mascot. River otters hold paws in a raft while 
 ## Screenshots
 
 <p align="center">
-  <img src="docs/images/screenshot_schedule_heatmap.png?raw=true" alt="EventMate Schedule Painter and Golden Hours" width="850" />
+  <img src="docs/images/screenshot_schedule_smart_paint.png?raw=true" alt="EventMate Schedule Painter with Smart Paint Tools and Required VIPs" width="850" />
 </p>
 
 <p align="center">
-  <em>2D availability grid with contiguous Golden Hours detection, group quorum calculation, and calendar sync</em>
+  <em>2D availability grid with Smart Paint toolbar (Undo/Redo, Column toggles, Invert), Required VIP host badges, and contiguous Golden Hours</em>
 </p>
 
 <p align="center">
-  <img src="docs/images/screenshot_ranked_irv.png?raw=true" alt="EventMate Instant-Runoff Voting Visualizer" width="850" />
+  <img src="docs/images/screenshot_summary_card.png?raw=true" alt="SyncOtter Shareable Summary Card" width="850" />
 </p>
 
 <p align="center">
-  <em>Instant-Runoff Voting (IRV) round-by-round tally visualizer showing vote redistribution and consensus results</em>
+  <em>SyncOtter shareable summary card ready for instant Telegram group posting and clipboard export</em>
+</p>
+
+<p align="center">
+  <img src="docs/images/screenshot_ranked_poll_rich.png?raw=true" alt="EventMate Instant-Runoff Voting with Rich Options" width="850" />
+</p>
+
+<p align="center">
+  <em>Instant-Runoff Voting (IRV) ballot with budget indicators ($$), Google Maps links, notes, and round-by-round tally visualizer</em>
 </p>
 
 ## Features
 
-- **2D touch drag-to-paint grid**: Paint availability across days and 30-minute intervals with pointer gestures on desktop and mobile.
-- **Group heatmap overlay**: Visual quorum gradient displaying real-time attendance percentage for each slot, complete with participant inspection tooltips.
-- **Contiguous Golden Hour detection**: Finds multi-hour meeting windows with maximum collective attendance rather than isolated 30-minute fragments.
-- **Calendar sync**: Exports locked meeting times directly to Google Calendar links and standard `.ics` (RFC 5545) files.
-- **Instant-Runoff Voting (IRV)**: Ranked preference polling that redistributes votes from eliminated candidates until a majority winner emerges.
-- **Round-by-round tally visualizer**: Inspect vote transfers, eliminated options, and majority threshold lines across all runoff rounds.
-- **Borda Count analysis**: View total consensus points alongside IRV for transparent group decision evaluation.
-- **Long polling Telegram bot**: Operates locally without webhooks, public HTTPS certificates, or paid hosting.
-- **Demo mode**: Pre-seeds a simulated "Friday Team Dinner" with six team members and an active restaurant poll for standalone browser testing.
+- **2D touch drag-to-paint grid**: Paint availability across dates and 30-minute intervals with pointer gestures on desktop and mobile.
+- **Smart Paint tools**: Quick presets ("Evenings 18-22", "Work Hours 9-17"), one-click "Copy Day 1 to All", invert selection, individual day column toggles, and full 30-step Undo/Redo stack (with `Ctrl+Z` / `Ctrl+Y`).
+- **Required VIP participants**: Mark key members (hosts, speakers, leads) with a golden crown. Golden Hour detection strictly disqualifies any candidate window where a required member cannot attend.
+- **Contiguous Golden Hour detection**: Discovers multi-hour meeting windows with maximum collective attendance rather than scattered 30-minute fragments.
+- **Group heatmap overlay**: Visual quorum gradient showing live attendance percentage per slot with detailed member breakdown popovers.
+- **SyncOtter summary card**: Generates clean visual infographic cards with confirmed meeting slots, poll winners, and attendee lists for Telegram groups.
+- **Timezone converter**: Switch between the organizer's event timezone and local browser time with a single click.
+- **Interactive in-app creators**: Dedicated modals to spin up new multi-day meeting grids or launch ranked polls directly from the browser UI.
+- **Rich candidate options**: Ranked choices support budget indicators (`$`, `$$`, `$$$`), direct Google Maps links, and detail notes.
+- **Instant-Runoff Voting (IRV)**: Ranked preference polling that transfers votes from eliminated candidates until a true majority winner emerges.
+- **Borda Count analysis**: Parallel point-based ranking displaying total group sentiment alongside IRV rounds.
+- **Calendar sync**: Exports locked meeting windows directly to Google Calendar and standard `.ics` (RFC 5545) files.
+- **Standalone demo studio**: Fully self-contained local mode (`DEMO_MODE=true`) running out of the box on port 8080 with mock credentials.
 
 ## Technical stack
 

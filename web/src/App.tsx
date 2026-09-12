@@ -7,6 +7,9 @@ import { GoldenHoursCard } from './components/GoldenHoursCard.js';
 import { RankedChoiceList } from './components/RankedChoiceList.js';
 import { ParticipantRoster } from './components/ParticipantRoster.js';
 import { DemoSandboxBanner } from './components/DemoSandboxBanner.js';
+import { CreateEventModal } from './components/CreateEventModal.js';
+import { CreatePollModal } from './components/CreatePollModal.js';
+import { SummaryCardModal } from './components/SummaryCardModal.js';
 import { Calendar, Clock, Loader2, AlertCircle } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -15,6 +18,20 @@ export const App: React.FC = () => {
   const [isHeatmapMode, setIsHeatmapMode] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Modals state
+  const [showCreateEventModal, setShowCreateEventModal] = useState<boolean>(false);
+  const [showCreatePollModal, setShowCreatePollModal] = useState<boolean>(false);
+  const [showSummaryCardModal, setShowSummaryCardModal] = useState<boolean>(false);
+
+  // User Timezone
+  const [currentTimezone, setCurrentTimezone] = useState<string>(() => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    } catch {
+      return 'UTC';
+    }
+  });
 
   // Event & Schedule State
   const [event, setEvent] = useState<EventData | null>(null);
@@ -161,6 +178,41 @@ export const App: React.FC = () => {
     }
   };
 
+  // Toggle VIP Required Participant
+  const handleToggleRequired = async (participantId: string) => {
+    if (!event) return;
+    try {
+      const res = await fetch(`/api/events/${event.id}/participants/${participantId}/toggle-required`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Failed to toggle required status');
+      await fetchData();
+    } catch (err: any) {
+      alert(err.message || 'Error updating required status');
+    }
+  };
+
+  // On Event Created
+  const handleEventCreated = (newEventId: string) => {
+    setShowCreateEventModal(false);
+    window.location.search = `?eventId=${newEventId}`;
+  };
+
+  // On Poll Created
+  const handlePollCreated = async (newPollId: string) => {
+    setShowCreatePollModal(false);
+    setActiveSection('POLL');
+    try {
+      const res = await fetch(`/api/polls/${newPollId}`);
+      if (res.ok) {
+        const pollJson = await res.json();
+        setPollData(pollJson);
+      }
+    } catch (err) {
+      console.error('Failed to load created poll:', err);
+    }
+  };
+
   // Compute submitted participant IDs
   const submittedParticipantIds = new Set<string>();
   slots.forEach((s) => submittedParticipantIds.add(s.participantId));
@@ -215,21 +267,33 @@ export const App: React.FC = () => {
         isHeatmapMode={isHeatmapMode}
         onToggleHeatmap={setIsHeatmapMode}
         isTelegram={isTelegram}
+        onOpenCreateEvent={() => setShowCreateEventModal(true)}
+        onOpenCreatePoll={() => setShowCreatePollModal(true)}
+        onOpenSummaryCard={() => setShowSummaryCardModal(true)}
+        currentTimezone={currentTimezone}
+        onChangeTimezone={setCurrentTimezone}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-4xl w-full mx-auto p-4 md:p-6 space-y-5">
         {/* Event Header Card */}
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
           <div>
-            <div className="flex items-center gap-2 text-xs text-emerald-400 font-semibold mb-1">
-              <Calendar className="w-3.5 h-3.5" />
-              <span>
-                {event.dates.length} Days &bull; {event.start_hour}:00 &ndash; {event.end_hour}:00
+            <div className="flex flex-wrap items-center gap-2 text-xs text-emerald-400 font-semibold mb-1">
+              <span className="flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5" />
+                {event.dates.length} Days ({event.start_hour}:00 &ndash; {event.end_hour}:00)
               </span>
-              <span className="text-slate-500">&bull;</span>
-              <Clock className="w-3.5 h-3.5" />
-              <span>{event.timezone}</span>
+              <span className="text-slate-600">&bull;</span>
+              <span className="flex items-center gap-1 text-slate-300">
+                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                Host: {event.timezone}
+              </span>
+              {currentTimezone !== event.timezone && (
+                <span className="text-[11px] px-2 py-0.5 rounded-md bg-indigo-950/60 border border-indigo-800/60 text-indigo-300">
+                  Local: {currentTimezone}
+                </span>
+              )}
             </div>
             <h2 className="text-xl font-extrabold text-white tracking-tight">{event.title}</h2>
             {event.description && (
@@ -265,6 +329,7 @@ export const App: React.FC = () => {
                 submittedParticipantIds={submittedParticipantIds}
                 onSelectParticipant={setCurrentParticipant}
                 onAddParticipant={handleAddParticipant}
+                onToggleRequired={handleToggleRequired}
               />
             )}
 
@@ -301,6 +366,33 @@ export const App: React.FC = () => {
 
       {/* Slot Tooltip Modal Popover */}
       <HeatmapOverlay quorum={tooltipQuorum} onClose={() => setTooltipQuorum(null)} />
+
+      {/* Interactive Feature Modals */}
+      <CreateEventModal
+        isOpen={showCreateEventModal}
+        onClose={() => setShowCreateEventModal(false)}
+        onCreated={handleEventCreated}
+        defaultOrganizerName={currentParticipant?.name || 'Alex (Host)'}
+      />
+
+      {event && (
+        <CreatePollModal
+          isOpen={showCreatePollModal}
+          onClose={() => setShowCreatePollModal(false)}
+          onCreated={handlePollCreated}
+          eventId={event.id}
+        />
+      )}
+
+      {event && (
+        <SummaryCardModal
+          isOpen={showSummaryCardModal}
+          onClose={() => setShowSummaryCardModal(false)}
+          event={event}
+          goldenHours={goldenHours}
+          pollData={pollData}
+        />
+      )}
 
       {/* Footer */}
       <footer className="w-full border-t border-slate-900 py-4 px-4 text-center text-xs text-slate-400">

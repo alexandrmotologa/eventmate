@@ -39,7 +39,7 @@ export async function registerEventRoutes(app: FastifyInstance): Promise<void> {
     }
 
     const participants: any[] = db
-      .prepare('SELECT id, name, avatar_color as avatarColor, telegram_user_id as telegramUserId, created_at as createdAt FROM participants WHERE event_id = ? ORDER BY created_at ASC')
+      .prepare('SELECT id, name, avatar_color as avatarColor, is_required as isRequired, telegram_user_id as telegramUserId, created_at as createdAt FROM participants WHERE event_id = ? ORDER BY created_at ASC')
       .all(eventId);
 
     const rawSlots: any[] = db
@@ -52,6 +52,7 @@ export async function registerEventRoutes(app: FastifyInstance): Promise<void> {
       id: p.id,
       name: p.name,
       avatarColor: p.avatarColor,
+      isRequired: Boolean(p.isRequired),
     }));
 
     const domainSlots: SlotAvailability[] = rawSlots.map((s) => ({
@@ -117,11 +118,11 @@ export async function registerEventRoutes(app: FastifyInstance): Promise<void> {
       slotDuration
     );
 
-    // Add creator as first participant
+    // Add creator as first participant (marked as required by default)
     const participantId = 'p-' + Date.now().toString(36);
     db.prepare(`
-      INSERT INTO participants (id, event_id, telegram_user_id, name, avatar_color)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO participants (id, event_id, telegram_user_id, name, avatar_color, is_required)
+      VALUES (?, ?, ?, ?, ?, 1)
     `).run(participantId, eventId, creatorId, creatorName, '#10B981');
 
     return reply.status(201).send({
@@ -142,13 +143,13 @@ export async function registerEventRoutes(app: FastifyInstance): Promise<void> {
     async (
       request: FastifyRequest<{
         Params: { id: string };
-        Body: { name: string; avatarColor?: string; telegramUserId?: string };
+        Body: { name: string; avatarColor?: string; telegramUserId?: string; isRequired?: boolean };
       }>,
       reply: FastifyReply
     ) => {
       const rawId = request.params.id;
       const eventId = rawId === 'demo' ? DEMO_EVENT_ID : rawId;
-      const { name, avatarColor, telegramUserId } = request.body;
+      const { name, avatarColor, telegramUserId, isRequired } = request.body;
 
       if (!name) {
         return reply.status(400).send({ error: 'Participant name is required' });
@@ -156,7 +157,7 @@ export async function registerEventRoutes(app: FastifyInstance): Promise<void> {
 
       // Check if participant already exists by name
       const existing: any = db
-        .prepare('SELECT id, name, avatar_color as avatarColor FROM participants WHERE event_id = ? AND name = ?')
+        .prepare('SELECT id, name, avatar_color as avatarColor, is_required as isRequired FROM participants WHERE event_id = ? AND name = ?')
         .get(eventId, name);
 
       if (existing) {
@@ -167,11 +168,42 @@ export async function registerEventRoutes(app: FastifyInstance): Promise<void> {
       const color = avatarColor || '#3B82F6';
 
       db.prepare(`
-        INSERT INTO participants (id, event_id, telegram_user_id, name, avatar_color)
-        VALUES (?, ?, ?, ?, ?)
-      `).run(id, eventId, telegramUserId || null, name, color);
+        INSERT INTO participants (id, event_id, telegram_user_id, name, avatar_color, is_required)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `).run(id, eventId, telegramUserId || null, name, color, isRequired ? 1 : 0);
 
-      return reply.status(201).send({ id, name, avatarColor: color });
+      return reply.status(201).send({ id, name, avatarColor: color, isRequired: Boolean(isRequired) });
+    }
+  );
+
+  // POST /api/events/:id/participants/:pId/toggle-required
+  app.post(
+    '/api/events/:id/participants/:pId/toggle-required',
+    async (
+      request: FastifyRequest<{
+        Params: { id: string; pId: string };
+      }>,
+      reply: FastifyReply
+    ) => {
+      const rawId = request.params.id;
+      const eventId = rawId === 'demo' ? DEMO_EVENT_ID : rawId;
+      const { pId } = request.params;
+
+      db.prepare(`
+        UPDATE participants
+        SET is_required = CASE WHEN is_required = 1 THEN 0 ELSE 1 END
+        WHERE event_id = ? AND id = ?
+      `).run(eventId, pId);
+
+      const updated: any = db
+        .prepare('SELECT id, name, is_required as isRequired FROM participants WHERE event_id = ? AND id = ?')
+        .get(eventId, pId);
+
+      if (!updated) {
+        return reply.status(404).send({ error: 'Participant not found' });
+      }
+
+      return { success: true, participant: { ...updated, isRequired: Boolean(updated.isRequired) } };
     }
   );
 

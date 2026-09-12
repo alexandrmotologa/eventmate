@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PollData, PollOption } from '../types.js';
 import { useTelegram } from '../hooks/useTelegram.js';
-import { ArrowUp, ArrowDown, Check, Trophy, BarChart3, Layers } from 'lucide-react';
+import { ArrowUp, ArrowDown, Check, Trophy, BarChart3, Layers, MapPin } from 'lucide-react';
 
 interface Props {
   pollData: PollData;
@@ -138,9 +138,9 @@ export const RankedChoiceList: React.FC<Props> = ({
                 key={opt.id}
                 className="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800 hover:border-slate-700 transition-all"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 overflow-hidden">
                   <span
-                    className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${
+                    className={`w-6 h-6 shrink-0 flex items-center justify-center rounded-full text-xs font-bold ${
                       idx === 0
                         ? 'bg-amber-500 text-slate-950'
                         : idx === 1
@@ -150,8 +150,32 @@ export const RankedChoiceList: React.FC<Props> = ({
                   >
                     {idx + 1}
                   </span>
-                  <span className="text-xl">{opt.icon}</span>
-                  <span className="text-sm font-semibold text-white">{opt.text}</span>
+                  <span className="text-xl shrink-0">{opt.icon}</span>
+                  <div className="overflow-hidden">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-semibold text-white">{opt.text}</span>
+                      {opt.priceLevel && (
+                        <span className="text-[10px] font-black text-amber-400 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/30">
+                          {opt.priceLevel}
+                        </span>
+                      )}
+                      {opt.mapsUrl && (
+                        <a
+                          href={opt.mapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-[10px] text-sky-400 hover:text-sky-300 flex items-center gap-0.5 bg-sky-950/50 px-1.5 py-0.5 rounded border border-sky-800/40"
+                        >
+                          <MapPin className="w-2.5 h-2.5" />
+                          <span>Map</span>
+                        </a>
+                      )}
+                    </div>
+                    {opt.details && (
+                      <p className="text-[11px] text-slate-400 mt-0.5 truncate">{opt.details}</p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-1">
