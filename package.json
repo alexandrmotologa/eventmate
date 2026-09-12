@@ -1,0 +1,23 @@
+{
+  "name": "eventmate-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Telegram Mini App for 2D schedule painting (When2Meet style) and Ranked-Choice group voting (IRV)",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix web install",
+    "dev:server": "npm --prefix server run dev",
+    "dev:web": "npm --prefix web run dev",
+    "build": "npm --prefix web run build && npm --prefix server run build",
+    "test": "npm --prefix server run test",
+    "start": "npm --prefix server run start"
+  },
+  "keywords": [
+    "when2meet",
+    "telegram-mini-app",
+    "instant-runoff-voting",
+    "group-scheduling",
+    "ranked-choice-voting"
+  ],
+  "author": "Alexandr Motologa",
+  "license": "MIT"
+}

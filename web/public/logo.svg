@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    <linearGradient id="otterFur" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a16207" />
+      <stop offset="100%" stop-color="#713f12" />
+    </linearGradient>
+    <linearGradient id="otterLight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fef3c7" />
+      <stop offset="100%" stop-color="#fde68a" />
+    </linearGradient>
+    <linearGradient id="emeraldBadge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <filter id="emeraldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#10b981" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#bgGrad)" stroke="#1e293b" stroke-width="8" />
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="6 8" opacity="0.25" />
+
+  <circle cx="170" cy="140" r="32" fill="#713f12" />
+  <circle cx="170" cy="140" r="18" fill="#ca8a04" opacity="0.6" />
+  <circle cx="342" cy="140" r="32" fill="#713f12" />
+  <circle cx="342" cy="140" r="18" fill="#ca8a04" opacity="0.6" />
+
+  <ellipse cx="256" cy="205" rx="105" ry="92" fill="url(#otterFur)" />
+  <ellipse cx="256" cy="232" rx="68" ry="48" fill="url(#otterLight)" />
+
+  <circle cx="215" cy="190" r="13" fill="#0f172a" />
+  <circle cx="212" cy="186" r="4.5" fill="#ffffff" />
+  <circle cx="297" cy="190" r="13" fill="#0f172a" />
+  <circle cx="294" cy="186" r="4.5" fill="#ffffff" />
+
+  <path d="M243 218 Q256 210 269 218 Q256 230 243 218 Z" fill="#451a03" />
+
+  <line x1="195" y1="230" x2="150" y2="225" stroke="#78350f" stroke-width="3" stroke-linecap="round" opacity="0.7" />
+  <line x1="195" y1="238" x2="155" y2="245" stroke="#78350f" stroke-width="3" stroke-linecap="round" opacity="0.7" />
+  <line x1="317" y1="230" x2="362" y2="225" stroke="#78350f" stroke-width="3" stroke-linecap="round" opacity="0.7" />
+  <line x1="317" y1="238" x2="357" y2="245" stroke="#78350f" stroke-width="3" stroke-linecap="round" opacity="0.7" />
+
+  <path d="M246 232 Q256 240 266 232" fill="none" stroke="#451a03" stroke-width="3" stroke-linecap="round" />
+
+  <rect x="156" y="275" width="200" height="155" rx="28" fill="url(#emeraldBadge)" filter="url(#emeraldGlow)" />
+  <rect x="156" y="275" width="200" height="38" rx="28" fill="#047857" />
+  <rect x="156" y="295" width="200" height="18" fill="#047857" />
+  
+  <rect x="200" y="263" width="14" height="24" rx="7" fill="#f8fafc" />
+  <rect x="298" y="263" width="14" height="24" rx="7" fill="#f8fafc" />
+
+  <rect x="176" y="325" width="42" height="26" rx="6" fill="#10b981" opacity="0.9" />
+  <rect x="176" y="358" width="42" height="26" rx="6" fill="#065f46" opacity="0.6" />
+  <rect x="176" y="391" width="42" height="26" rx="6" fill="#10b981" opacity="0.9" />
+
+  <rect x="226" y="325" width="60" height="26" rx="6" fill="#34d399" />
+  <rect x="226" y="358" width="60" height="26" rx="6" fill="#a7f3d0" />
+  <circle cx="256" cy="371" r="5" fill="#065f46" />
+  <rect x="226" y="391" width="60" height="26" rx="6" fill="#34d399" />
+
+  <rect x="294" y="325" width="42" height="26" rx="6" fill="#065f46" opacity="0.6" />
+  <rect x="294" y="358" width="42" height="26" rx="6" fill="#10b981" opacity="0.9" />
+  <rect x="294" y="391" width="42" height="26" rx="6" fill="#065f46" opacity="0.6" />
+
+  <ellipse cx="156" cy="345" rx="22" ry="26" fill="#854d0e" />
+  <circle cx="150" cy="335" r="7" fill="#ca8a04" opacity="0.6" />
+  <circle cx="162" cy="335" r="7" fill="#ca8a04" opacity="0.6" />
+
+  <ellipse cx="356" cy="345" rx="22" ry="26" fill="#854d0e" />
+  <circle cx="350" cy="335" r="7" fill="#ca8a04" opacity="0.6" />
+  <circle cx="362" cy="335" r="7" fill="#ca8a04" opacity="0.6" />
+</svg>
