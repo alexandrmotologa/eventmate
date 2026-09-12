@@ -1,4 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+const fs = require('fs');
+const path = require('path');
+const { Resvg } = require('@resvg/resvg-js');
+
+function buildSyncOtterSvg() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
     <clipPath id="squircle-clip">
       <rect x="24" y="24" width="976" height="976" rx="220" />
@@ -204,4 +209,28 @@
 
     </g>
   </g>
-</svg>
+</svg>`;
+}
+
+async function renderLogo(outputDir) {
+  const svg = buildSyncOtterSvg();
+  const svgPath = path.join(outputDir, 'logo.svg');
+  const pngPath = path.join(outputDir, 'logo.png');
+
+  fs.writeFileSync(svgPath, svg, 'utf8');
+  const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: 1024 } });
+  const pngData = resvg.render().asPng();
+  fs.writeFileSync(pngPath, pngData);
+  console.log('✓ Successfully rendered refined logo.svg and logo.png in', outputDir);
+
+  // Also copy to web/public/logo.svg for mini app consistency
+  const webPublicLogo = path.resolve(__dirname, '../web/public/logo.svg');
+  fs.writeFileSync(webPublicLogo, svg, 'utf8');
+  console.log('✓ Updated web/public/logo.svg');
+}
+
+const targetDir = path.resolve(__dirname, '../docs/images');
+renderLogo(targetDir).catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/logo.svg" alt="EventMate Logo" width="130" style="border-radius: 28px;" />
+  <img src="docs/images/logo.png?raw=true" alt="EventMate Logo" width="130" style="border-radius: 28px;" />
 </p>
 
 <h1 align="center">EventMate</h1>
@@ -26,11 +26,27 @@ EventMate uses the **SyncOtter** mascot. River otters hold paws in a raft while 
 ## Screenshots
 
 <p align="center">
-  <img src="docs/images/screenshot_schedule_smart_paint.png?raw=true" alt="EventMate Schedule Painter with Smart Paint Tools and Required VIPs" width="850" />
+  <img src="docs/images/screenshot_schedule_grid.png?raw=true" alt="EventMate 2D Schedule Painter with Contiguous Golden Hours" width="850" />
 </p>
 
 <p align="center">
-  <em>2D availability grid with Smart Paint toolbar (Undo/Redo, Column toggles, Invert), Required VIP host badges, and contiguous Golden Hours</em>
+  <em>2D availability grid with Smart Paint tools (Undo/Redo, Column toggles, Invert), Golden VIP host badges, and contiguous Golden Hours detection</em>
+</p>
+
+<p align="center">
+  <img src="docs/images/screenshot_heatmap.png?raw=true" alt="EventMate Real-Time Group Quorum Heatmap" width="850" />
+</p>
+
+<p align="center">
+  <em>Live group quorum heatmap overlay displaying collective attendance percentages across days and time slots</em>
+</p>
+
+<p align="center">
+  <img src="docs/images/screenshot_ranked_irv.png?raw=true" alt="EventMate Instant-Runoff Voting Round Visualizer" width="850" />
+</p>
+
+<p align="center">
+  <em>Instant-Runoff Voting (IRV) round-by-round tally visualizer showing vote redistribution, majority threshold, and consensus results</em>
 </p>
 
 <p align="center">
@@ -38,15 +54,7 @@ EventMate uses the **SyncOtter** mascot. River otters hold paws in a raft while 
 </p>
 
 <p align="center">
-  <em>SyncOtter shareable summary card ready for instant Telegram group posting and clipboard export</em>
-</p>
-
-<p align="center">
-  <img src="docs/images/screenshot_ranked_poll_rich.png?raw=true" alt="EventMate Instant-Runoff Voting with Rich Options" width="850" />
-</p>
-
-<p align="center">
-  <em>Instant-Runoff Voting (IRV) ballot with budget indicators ($$), Google Maps links, notes, and round-by-round tally visualizer</em>
+  <em>SyncOtter shareable summary card ready for instant Telegram group sharing and clipboard export</em>
 </p>
 
 ## Features

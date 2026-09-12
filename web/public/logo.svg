@@ -1,76 +1,207 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f172a" />
-      <stop offset="100%" stop-color="#020617" />
+    <clipPath id="squircle-clip">
+      <rect x="24" y="24" width="976" height="976" rx="220" />
+    </clipPath>
+
+    <!-- Emerald / Cyan Synchrony Glow -->
+    <linearGradient id="sync-emerald" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
     </linearGradient>
-    <linearGradient id="otterFur" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#a16207" />
-      <stop offset="100%" stop-color="#713f12" />
+
+    <linearGradient id="cyan-accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
     </linearGradient>
-    <linearGradient id="otterLight" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#fef3c7" />
-      <stop offset="100%" stop-color="#fde68a" />
+
+    <!-- Deep Slate / Obsidian Facet Gradients -->
+    <linearGradient id="facet-lit" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#334155"/>
     </linearGradient>
-    <linearGradient id="emeraldBadge" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#34d399" />
-      <stop offset="100%" stop-color="#059669" />
+
+    <linearGradient id="facet-mid" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#1e293b"/>
     </linearGradient>
-    <filter id="emeraldGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#10b981" flood-opacity="0.5" />
+
+    <linearGradient id="facet-dark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <linearGradient id="facet-shadow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+
+    <!-- Otter Warm Chest Facet Gradients -->
+    <linearGradient id="otter-cream" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f1f5f9"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+
+    <linearGradient id="otter-tan" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="subtle-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#0f172a" flood-opacity="0.14" />
     </filter>
   </defs>
 
-  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#bgGrad)" stroke="#1e293b" stroke-width="8" />
-  <circle cx="256" cy="256" r="200" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="6 8" opacity="0.25" />
+  <!-- Luxury White Squircle Container -->
+  <rect x="24" y="24" width="976" height="976" rx="220" fill="#ffffff" stroke="#e2e8f0" stroke-width="6" />
 
-  <circle cx="170" cy="140" r="32" fill="#713f12" />
-  <circle cx="170" cy="140" r="18" fill="#ca8a04" opacity="0.6" />
-  <circle cx="342" cy="140" r="32" fill="#713f12" />
-  <circle cx="342" cy="140" r="18" fill="#ca8a04" opacity="0.6" />
+  <g clip-path="url(#squircle-clip)">
+    <g transform="translate(512, 512)" filter="url(#subtle-shadow)">
 
-  <ellipse cx="256" cy="205" rx="105" ry="92" fill="url(#otterFur)" />
-  <ellipse cx="256" cy="232" rx="68" ry="48" fill="url(#otterLight)" />
+      <!-- Hexagonal Architectural Frame (Centering & Alignment Gateway) -->
+      <polygon points="
+        0,-410
+        355,-205
+        355,205
+        0,410
+        -355,205
+        -355,-205
+      " fill="none" stroke="#0f172a" stroke-width="36" stroke-linejoin="round" />
 
-  <circle cx="215" cy="190" r="13" fill="#0f172a" />
-  <circle cx="212" cy="186" r="4.5" fill="#ffffff" />
-  <circle cx="297" cy="190" r="13" fill="#0f172a" />
-  <circle cx="294" cy="186" r="4.5" fill="#ffffff" />
+      <!-- Inner Precision Schedule Matrix Track (Dashed Emerald/Cyan) -->
+      <polygon points="
+        0,-375
+        325,-187
+        325,187
+        0,375
+        -325,187
+        -325,-187
+      " fill="none" stroke="url(#sync-emerald)" stroke-width="4" opacity="0.6" stroke-dasharray="16, 12" />
 
-  <path d="M243 218 Q256 210 269 218 Q256 230 243 218 Z" fill="#451a03" />
+      <!-- Outer Radar Compass Pointers (Clock/Schedule Coordinate Marks) -->
+      <line x1="0" y1="-410" x2="0" y2="-435" stroke="#10b981" stroke-width="5" stroke-linecap="round" />
+      <line x1="0" y1="410" x2="0" y2="435" stroke="#10b981" stroke-width="5" stroke-linecap="round" />
+      <line x1="-355" y1="0" x2="-380" y2="0" stroke="#0ea5e9" stroke-width="5" stroke-linecap="round" />
+      <line x1="355" y1="0" x2="380" y2="0" stroke="#0ea5e9" stroke-width="5" stroke-linecap="round" />
 
-  <line x1="195" y1="230" x2="150" y2="225" stroke="#78350f" stroke-width="3" stroke-linecap="round" opacity="0.7" />
-  <line x1="195" y1="238" x2="155" y2="245" stroke="#78350f" stroke-width="3" stroke-linecap="round" opacity="0.7" />
-  <line x1="317" y1="230" x2="362" y2="225" stroke="#78350f" stroke-width="3" stroke-linecap="round" opacity="0.7" />
-  <line x1="317" y1="238" x2="357" y2="245" stroke="#78350f" stroke-width="3" stroke-linecap="round" opacity="0.7" />
+      <!-- ======================================================== -->
+      <!-- THE SYNCOTTER MASCOT (Streamlined River Otter in Raft Pose)-->
+      <!-- ======================================================== -->
 
-  <path d="M246 232 Q256 240 266 232" fill="none" stroke="#451a03" stroke-width="3" stroke-linecap="round" />
+      <!-- 1. Watertight Solid Base Silhouette (Zero-Leak Rule) -->
+      <path d="
+        M 0,-270
+        C 70,-270 145,-250 190,-190
+        C 220,-150 250,-80 250,30
+        C 250,150 210,260 140,330
+        C 70,390 0,400 0,400
+        C 0,400 -70,390 -140,330
+        C -210,260 -250,150 -250,30
+        C -250,-80 -220,-150 -190,-190
+        C -145,-250 -70,-270 0,-270
+        Z
+      " fill="#0f172a" />
 
-  <rect x="156" y="275" width="200" height="155" rx="28" fill="url(#emeraldBadge)" filter="url(#emeraldGlow)" />
-  <rect x="156" y="275" width="200" height="38" rx="28" fill="#047857" />
-  <rect x="156" y="295" width="200" height="18" fill="#047857" />
-  
-  <rect x="200" y="263" width="14" height="24" rx="7" fill="#f8fafc" />
-  <rect x="298" y="263" width="14" height="24" rx="7" fill="#f8fafc" />
+      <!-- 2. Otter Ears (Rounded, Low-Poly, Alert) -->
+      <!-- Left Ear -->
+      <polygon points="-135,-190 -175,-255 -225,-220 -195,-155" fill="url(#facet-mid)" />
+      <polygon points="-150,-185 -180,-235 -210,-215 -185,-165" fill="#0f172a" />
+      <polygon points="-160,-185 -180,-220 -198,-205 -180,-175" fill="url(#sync-emerald)" opacity="0.9" />
 
-  <rect x="176" y="325" width="42" height="26" rx="6" fill="#10b981" opacity="0.9" />
-  <rect x="176" y="358" width="42" height="26" rx="6" fill="#065f46" opacity="0.6" />
-  <rect x="176" y="391" width="42" height="26" rx="6" fill="#10b981" opacity="0.9" />
+      <!-- Right Ear (Symmetrical) -->
+      <polygon points="135,-190 175,-255 225,-220 195,-155" fill="url(#facet-lit)" />
+      <polygon points="150,-185 180,-235 210,-215 185,-165" fill="#1e293b" />
+      <polygon points="160,-185 180,-220 198,-205 180,-175" fill="url(#sync-emerald)" opacity="0.9" />
 
-  <rect x="226" y="325" width="60" height="26" rx="6" fill="#34d399" />
-  <rect x="226" y="358" width="60" height="26" rx="6" fill="#a7f3d0" />
-  <circle cx="256" cy="371" r="5" fill="#065f46" />
-  <rect x="226" y="391" width="60" height="26" rx="6" fill="#34d399" />
+      <!-- 3. Cranium & Forehead Mesh -->
+      <!-- Crown Central Ridge -->
+      <polygon points="0,-270 65,-240 0,-170 -65,-240" fill="url(#facet-lit)" />
+      <polygon points="0,-170 80,-150 0,-70 -80,-150" fill="url(#facet-mid)" />
 
-  <rect x="294" y="325" width="42" height="26" rx="6" fill="#065f46" opacity="0.6" />
-  <rect x="294" y="358" width="42" height="26" rx="6" fill="#10b981" opacity="0.9" />
-  <rect x="294" y="391" width="42" height="26" rx="6" fill="#065f46" opacity="0.6" />
+      <!-- Upper Forehead Left Facets -->
+      <polygon points="-65,-240 -135,-190 -80,-150 0,-170" fill="url(#facet-dark)" />
+      <polygon points="-135,-190 -190,-125 -140,-80 -80,-150" fill="url(#facet-shadow)" />
 
-  <ellipse cx="156" cy="345" rx="22" ry="26" fill="#854d0e" />
-  <circle cx="150" cy="335" r="7" fill="#ca8a04" opacity="0.6" />
-  <circle cx="162" cy="335" r="7" fill="#ca8a04" opacity="0.6" />
+      <!-- Upper Forehead Right Facets (Illuminated side) -->
+      <polygon points="65,-240 135,-190 80,-150 0,-170" fill="url(#facet-lit)" />
+      <polygon points="135,-190 190,-125 140,-80 80,-150" fill="url(#facet-mid)" />
 
-  <ellipse cx="356" cy="345" rx="22" ry="26" fill="#854d0e" />
-  <circle cx="350" cy="335" r="7" fill="#ca8a04" opacity="0.6" />
-  <circle cx="362" cy="335" r="7" fill="#ca8a04" opacity="0.6" />
+      <!-- 4. Temple & Cheekbones (Streamlined Dynamic) -->
+      <polygon points="-190,-125 -235,-30 -165,10 -140,-80" fill="url(#facet-dark)" />
+      <polygon points="190,-125 235,-30 165,10 140,-80" fill="url(#facet-mid)" />
+
+      <!-- 5. Sleek Alert Eyes (Refined Low-Poly Almond Shape, Emerald Precision Focus) -->
+      <!-- Left Eye Socket -->
+      <polygon points="-80,-150 -140,-80 -55,-65" fill="#020617" />
+      <!-- Left Eye Almond Contour -->
+      <polygon points="-70,-115 -125,-90 -115,-72 -65,-80" fill="#0b0f19" />
+      <!-- Left Iris Glow -->
+      <polygon points="-75,-110 -120,-88 -110,-75 -70,-82" fill="url(#sync-emerald)" />
+      <!-- Left Highlight Pupil -->
+      <polygon points="-90,-102 -108,-92 -98,-82 -85,-90" fill="#ffffff" />
+
+      <!-- Right Eye Socket -->
+      <polygon points="80,-150 140,-80 55,-65" fill="#0b0f19" />
+      <!-- Right Eye Almond Contour -->
+      <polygon points="70,-115 125,-90 115,-72 65,-80" fill="#1e293b" />
+      <!-- Right Iris Glow -->
+      <polygon points="75,-110 120,-88 110,-75 70,-82" fill="url(#sync-emerald)" />
+      <!-- Right Highlight Pupil -->
+      <polygon points="90,-102 108,-92 98,-82 85,-90" fill="#ffffff" />
+
+      <!-- 6. Muzzle Bridge & Whisker Pads (Horizontally Spreading, Slate & Cream) -->
+      <!-- Nose Bridge Center -->
+      <polygon points="0,-70 50,-35 0,10 -50,-35" fill="url(#facet-lit)" />
+
+      <!-- Sleek Triangular Otter Nose -->
+      <polygon points="0,-2 32,22 0,38 -32,22" fill="#020617" stroke="#334155" stroke-width="2" stroke-linejoin="round" />
+      <polygon points="0,6 16,20 0,30 -16,20" fill="url(#sync-emerald)" opacity="0.95" />
+
+      <!-- Lateral Whisker Pads (Spreading Laterally) -->
+      <polygon points="-50,-35 -32,22 -95,48 -140,-10" fill="url(#otter-cream)" />
+      <polygon points="50,-35 32,22 95,48 140,-10" fill="url(#otter-cream)" />
+
+      <polygon points="-32,22 0,38 0,85 -85,75 -95,48" fill="url(#otter-tan)" />
+      <polygon points="32,22 0,38 0,85 85,75 95,48" fill="url(#otter-tan)" />
+
+      <!-- Whiskers (Minimal Precision Lines) -->
+      <line x1="-95" y1="42" x2="-160" y2="35" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
+      <line x1="-90" y1="58" x2="-155" y2="68" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
+      <line x1="95" y1="42" x2="160" y2="35" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
+      <line x1="90" y1="58" x2="155" y2="68" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
+
+      <!-- 7. Otter Throat & Bib (Consensus Raft Armor) -->
+      <polygon points="0,85 75,105 0,185 -75,105" fill="url(#otter-cream)" />
+      <polygon points="-75,105 -150,115 -115,195 0,185" fill="url(#otter-tan)" />
+      <polygon points="75,105 150,115 115,195 0,185" fill="url(#otter-tan)" />
+
+      <!-- 8. Interlocking Raft Paws (Symbol of Collective Quorum & Paws Held Together) -->
+      <!-- Left Claws / Paws -->
+      <polygon points="-115,195 -45,210 -25,250 -95,265" fill="url(#facet-lit)" />
+      <polygon points="-95,265 -25,250 0,270 -65,305" fill="url(#facet-mid)" />
+
+      <!-- Right Claws / Paws (Interlocked at center) -->
+      <polygon points="115,195 45,210 25,250 95,265" fill="url(#facet-mid)" />
+      <polygon points="95,265 25,250 0,270 65,305" fill="url(#facet-dark)" />
+
+      <!-- Synchrony Knot Center Jewel (The Overlap Core) -->
+      <polygon points="0,230 28,258 0,286 -28,258" fill="url(#sync-emerald)" stroke="#ffffff" stroke-width="3" />
+
+      <!-- 9. Lower Streamlined Body Facets -->
+      <polygon points="-140,210 -170,290 -95,350 -65,305 -115,195" fill="url(#facet-shadow)" />
+      <polygon points="140,210 170,290 95,350 65,305 115,195" fill="url(#facet-dark)" />
+
+      <!-- Central Raft Keel -->
+      <polygon points="0,286 65,305 0,385 -65,305" fill="url(#facet-dark)" />
+      <polygon points="65,305 95,350 0,385" fill="url(#facet-shadow)" />
+      <polygon points="-65,305 -95,350 0,385" fill="#020617" />
+
+      <!-- 10. Floating Hydro-Dynamic Synchrony Waves (Negative Space Waterline) -->
+      <path d="M -260,280 Q -130,250 0,280 Q 130,310 260,280" fill="none" stroke="url(#cyan-accent)" stroke-width="5" opacity="0.7" stroke-linecap="round" />
+      <path d="M -210,325 Q -105,300 0,325 Q 105,350 210,325" fill="none" stroke="url(#sync-emerald)" stroke-width="4" opacity="0.5" stroke-linecap="round" />
+
+    </g>
+  </g>
 </svg>
