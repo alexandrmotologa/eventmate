@@ -25,37 +25,23 @@ EventMate uses the **SyncOtter** mascot. River otters hold paws in a raft while 
 
 ## Screenshots
 
-<p align="center">
-  <img src="docs/images/screenshot_schedule_grid.png?raw=true" alt="EventMate 2D Schedule Painter with Contiguous Golden Hours" width="850" />
-</p>
+<details open>
+<summary><strong>Expand interface gallery</strong></summary>
+<br/>
 
-<p align="center">
-  <em>2D availability grid with Smart Paint tools (Undo/Redo, Column toggles, Invert), Golden VIP host badges, and contiguous Golden Hours detection</em>
-</p>
+| 2D Availability Painter & Golden Hours | Group Quorum Heatmap Overlay |
+| :---: | :---: |
+| ![2D Schedule Painter](docs/images/screenshot_schedule_grid.png?raw=true) | ![Quorum Heatmap](docs/images/screenshot_heatmap.png?raw=true) |
 
-<p align="center">
-  <img src="docs/images/screenshot_heatmap.png?raw=true" alt="EventMate Real-Time Group Quorum Heatmap" width="850" />
-</p>
+| Ranked-Choice Ballot (Budget & Maps) | Instant-Runoff Voting (IRV) Visualizer |
+| :---: | :---: |
+| ![Ranked Ballot](docs/images/screenshot_ballot.png?raw=true) | ![IRV Visualizer](docs/images/screenshot_ranked_irv.png?raw=true) |
 
-<p align="center">
-  <em>Live group quorum heatmap overlay displaying collective attendance percentages across days and time slots</em>
-</p>
+| SyncOtter Shareable Summary Card |
+| :---: |
+| ![Summary Card](docs/images/screenshot_summary_card.png?raw=true) |
 
-<p align="center">
-  <img src="docs/images/screenshot_ranked_irv.png?raw=true" alt="EventMate Instant-Runoff Voting Round Visualizer" width="850" />
-</p>
-
-<p align="center">
-  <em>Instant-Runoff Voting (IRV) round-by-round tally visualizer showing vote redistribution, majority threshold, and consensus results</em>
-</p>
-
-<p align="center">
-  <img src="docs/images/screenshot_summary_card.png?raw=true" alt="SyncOtter Shareable Summary Card" width="850" />
-</p>
-
-<p align="center">
-  <em>SyncOtter shareable summary card ready for instant Telegram group sharing and clipboard export</em>
-</p>
+</details>
 
 ## Features
 
