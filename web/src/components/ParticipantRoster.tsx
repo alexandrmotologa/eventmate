@@ -8,7 +8,7 @@ interface Props {
   currentParticipant: Participant;
   submittedParticipantIds: Set<string>;
   onSelectParticipant: (participant: Participant) => void;
-  onAddParticipant: (name: string) => void;
+  onOpenAddModal: () => void;
   onToggleRequired?: (participantId: string) => void;
 }
 
@@ -17,17 +17,10 @@ export const ParticipantRoster: React.FC<Props> = ({
   currentParticipant,
   submittedParticipantIds,
   onSelectParticipant,
-  onAddParticipant,
+  onOpenAddModal,
   onToggleRequired,
 }) => {
   const { hapticSelection } = useTelegram();
-
-  const handlePromptAdd = () => {
-    const name = window.prompt('Enter new member name:');
-    if (name && name.trim().length > 0) {
-      onAddParticipant(name.trim());
-    }
-  };
 
   return (
     <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl backdrop-blur-md">
@@ -41,7 +34,10 @@ export const ParticipantRoster: React.FC<Props> = ({
 
         <button
           type="button"
-          onClick={handlePromptAdd}
+          onClick={() => {
+            hapticSelection();
+            onOpenAddModal();
+          }}
           className="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 bg-emerald-950/40 hover:bg-emerald-900/50 px-2.5 py-1 rounded-lg border border-emerald-800/50 transition-colors cursor-pointer"
         >
           <Plus className="w-3 h-3" />

@@ -10,10 +10,11 @@ import { DemoSandboxBanner } from './components/DemoSandboxBanner.js';
 import { CreateEventModal } from './components/CreateEventModal.js';
 import { CreatePollModal } from './components/CreatePollModal.js';
 import { SummaryCardModal } from './components/SummaryCardModal.js';
+import { AddMemberModal } from './components/AddMemberModal.js';
 import { Calendar, Clock, Loader2, AlertCircle } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const { isTelegram } = useTelegram();
+  const { isTelegram, showBackButton, hideBackButton } = useTelegram();
   const [activeSection, setActiveSection] = useState<'SCHEDULE' | 'POLL'>('SCHEDULE');
   const [isHeatmapMode, setIsHeatmapMode] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
@@ -23,6 +24,7 @@ export const App: React.FC = () => {
   const [showCreateEventModal, setShowCreateEventModal] = useState<boolean>(false);
   const [showCreatePollModal, setShowCreatePollModal] = useState<boolean>(false);
   const [showSummaryCardModal, setShowSummaryCardModal] = useState<boolean>(false);
+  const [showAddMemberModal, setShowAddMemberModal] = useState<boolean>(false);
 
   // User Timezone
   const [currentTimezone, setCurrentTimezone] = useState<string>(() => {
@@ -45,9 +47,36 @@ export const App: React.FC = () => {
   // Poll State
   const [pollData, setPollData] = useState<PollData | null>(null);
 
-  // Determine eventId from URL query param e.g. ?eventId=xxx or default to 'demo'
+  // Determine eventId and pollId from URL query param e.g. ?eventId=xxx or ?pollId=yyy
   const urlParams = new URLSearchParams(window.location.search);
   const eventId = urlParams.get('eventId') || 'demo';
+  const directPollId = urlParams.get('pollId');
+
+  // Telegram native BackButton controller
+  useEffect(() => {
+    const isAnyModalOpen =
+      showCreateEventModal || showCreatePollModal || showSummaryCardModal || showAddMemberModal || Boolean(tooltipQuorum);
+
+    if (isTelegram && isAnyModalOpen) {
+      showBackButton(() => {
+        setShowCreateEventModal(false);
+        setShowCreatePollModal(false);
+        setShowSummaryCardModal(false);
+        setShowAddMemberModal(false);
+        setTooltipQuorum(null);
+      });
+      return () => hideBackButton();
+    } else {
+      hideBackButton();
+    }
+  }, [
+    isTelegram,
+    showCreateEventModal,
+    showCreatePollModal,
+    showSummaryCardModal,
+    showAddMemberModal,
+    tooltipQuorum,
+  ]);
 
   const fetchData = async () => {
     try {
@@ -77,11 +106,22 @@ export const App: React.FC = () => {
         });
       }
 
-      // Fetch Poll Details
-      const pollRes = await fetch('/api/polls/demo');
+      // Fetch Poll Details (direct pollId > event-linked pollId > demo poll)
+      const pollToFetch = directPollId || eventJson.pollId || eventId;
+      const pollRes = await fetch(`/api/polls/${pollToFetch}`);
       if (pollRes.ok) {
         const pollJson = await pollRes.json();
         setPollData(pollJson);
+      } else {
+        const fallbackPollRes = await fetch('/api/polls/demo');
+        if (fallbackPollRes.ok) {
+          const fallbackJson = await fallbackPollRes.json();
+          setPollData(fallbackJson);
+        }
+      }
+
+      if (directPollId) {
+        setActiveSection('POLL');
       }
     } catch (err: any) {
       setError(err.message || 'Error connecting to EventMate backend');
@@ -92,7 +132,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-  }, [eventId]);
+  }, [eventId, directPollId]);
 
   // Save Availability
   const handleSaveAvailability = async (newSlots: { slotKey: string; state: 'AVAILABLE' | 'TENTATIVE' }[]) => {
@@ -133,16 +173,16 @@ export const App: React.FC = () => {
   };
 
   // Add Participant
-  const handleAddParticipant = async (name: string) => {
+  const handleAddParticipant = async (name: string, avatarColor?: string, isRequired?: boolean) => {
     if (!event) return;
     try {
       const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EC4899', '#8B5CF6', '#06B6D4', '#14B8A6'];
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      const chosenColor = avatarColor || colors[Math.floor(Math.random() * colors.length)];
 
       const res = await fetch(`/api/events/${event.id}/participants`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, avatarColor: randomColor }),
+        body: JSON.stringify({ name, avatarColor: chosenColor, isRequired: Boolean(isRequired) }),
       });
       if (!res.ok) throw new Error('Failed to add participant');
       const newP = await res.json();
@@ -328,7 +368,7 @@ export const App: React.FC = () => {
                 currentParticipant={currentParticipant}
                 submittedParticipantIds={submittedParticipantIds}
                 onSelectParticipant={setCurrentParticipant}
-                onAddParticipant={handleAddParticipant}
+                onOpenAddModal={() => setShowAddMemberModal(true)}
                 onToggleRequired={handleToggleRequired}
               />
             )}
@@ -336,6 +376,7 @@ export const App: React.FC = () => {
             {/* Interactive 2D Availability Painter / Heatmap Grid */}
             {currentParticipant && (
               <AvailabilityGrid
+                eventId={event.id}
                 dates={event.dates}
                 startHour={event.start_hour}
                 endHour={event.end_hour}
@@ -344,6 +385,8 @@ export const App: React.FC = () => {
                 mySlots={mySlots}
                 quorumMatrix={quorumMatrix}
                 isHeatmapMode={isHeatmapMode}
+                currentTimezone={currentTimezone}
+                eventTimezone={event.timezone}
                 onSaveAvailability={handleSaveAvailability}
                 onSelectSlotTooltip={setTooltipQuorum}
               />
@@ -368,6 +411,12 @@ export const App: React.FC = () => {
       <HeatmapOverlay quorum={tooltipQuorum} onClose={() => setTooltipQuorum(null)} />
 
       {/* Interactive Feature Modals */}
+      <AddMemberModal
+        isOpen={showAddMemberModal}
+        onClose={() => setShowAddMemberModal(false)}
+        onAddParticipant={handleAddParticipant}
+      />
+
       <CreateEventModal
         isOpen={showCreateEventModal}
         onClose={() => setShowCreateEventModal(false)}

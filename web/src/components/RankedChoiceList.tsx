@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PollData, PollOption } from '../types.js';
 import { useTelegram } from '../hooks/useTelegram.js';
-import { ArrowUp, ArrowDown, Check, Trophy, BarChart3, Layers, MapPin } from 'lucide-react';
+import { ArrowUp, ArrowDown, Check, Trophy, BarChart3, Layers, MapPin, Shuffle, RotateCcw, GripVertical } from 'lucide-react';
 
 interface Props {
   pollData: PollData;
@@ -16,11 +16,12 @@ export const RankedChoiceList: React.FC<Props> = ({
   currentVoterName,
   onCastVote,
 }) => {
-  const { hapticSelection, hapticSuccess } = useTelegram();
+  const { hapticSelection, hapticSuccess, showMainButton, hideMainButton, isTelegram } = useTelegram();
   const [orderedOptions, setOrderedOptions] = useState<PollOption[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedRound, setSelectedRound] = useState(1);
   const [activeTab, setActiveTab] = useState<'VOTE' | 'IRV_ROUNDS' | 'BORDA'>('VOTE');
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const { poll, options, ballots, irvResult, bordaScores } = pollData;
 
@@ -52,6 +53,37 @@ export const RankedChoiceList: React.FC<Props> = ({
     setOrderedOptions(copy);
   };
 
+  const handleShuffle = () => {
+    hapticSelection();
+    const shuffled = [...orderedOptions].sort(() => Math.random() - 0.5);
+    setOrderedOptions(shuffled);
+  };
+
+  const handleReset = () => {
+    hapticSelection();
+    setOrderedOptions([...options]);
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+
+    const copy = [...orderedOptions];
+    const [item] = copy.splice(draggedIndex, 1);
+    copy.splice(index, 0, item);
+    setDraggedIndex(index);
+    setOrderedOptions(copy);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
+
   const handleSubmitVote = async () => {
     setIsSubmitting(true);
     const prefIds = orderedOptions.map((o) => o.id);
@@ -60,6 +92,16 @@ export const RankedChoiceList: React.FC<Props> = ({
     setIsSubmitting(false);
     setActiveTab('IRV_ROUNDS');
   };
+
+  // Sync Telegram native MainButton
+  useEffect(() => {
+    if (isTelegram && activeTab === 'VOTE') {
+      showMainButton('🗳️ Submit Ranked Ballot', handleSubmitVote, '#F59E0B', '#0b0f19');
+      return () => hideMainButton();
+    } else {
+      hideMainButton();
+    }
+  }, [isTelegram, activeTab, orderedOptions]);
 
   const currentRoundData =
     irvResult.rounds.find((r) => r.roundNumber === selectedRound) ||
@@ -128,21 +170,54 @@ export const RankedChoiceList: React.FC<Props> = ({
       {/* TAB 1: VOTING / REORDERING */}
       {activeTab === 'VOTE' && (
         <div>
-          <p className="text-xs text-slate-400 mb-3">
-            Rank your preferences from top (1st choice) to bottom. Tap the arrows to reorder.
-          </p>
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <p className="text-xs text-slate-400">
+              Drag or tap arrows to rank choices from <strong className="text-emerald-400">1st</strong> (top) to last.
+            </p>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={handleShuffle}
+                className="px-2 py-1 bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold rounded-lg border border-slate-700 transition-colors flex items-center gap-1 cursor-pointer"
+                title="Shuffle options"
+              >
+                <Shuffle className="w-3 h-3 text-amber-400" />
+                <span>Shuffle</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="px-2 py-1 bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold rounded-lg border border-slate-700 transition-colors flex items-center gap-1 cursor-pointer"
+                title="Reset to default order"
+              >
+                <RotateCcw className="w-3 h-3 text-slate-400" />
+                <span>Reset</span>
+              </button>
+            </div>
+          </div>
 
           <div className="space-y-2">
             {orderedOptions.map((opt, idx) => (
               <div
                 key={opt.id}
-                className="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800 hover:border-slate-700 transition-all"
+                draggable
+                onDragStart={(e) => handleDragStart(e, idx)}
+                onDragOver={(e) => handleDragOver(e, idx)}
+                onDragEnd={handleDragEnd}
+                className={`flex items-center justify-between p-3 bg-slate-950 rounded-xl border transition-all select-none ${
+                  draggedIndex === idx
+                    ? 'opacity-50 border-emerald-500 scale-[0.98]'
+                    : 'border-slate-800 hover:border-slate-700'
+                }`}
               >
-                <div className="flex items-center gap-3 overflow-hidden">
+                <div className="flex items-center gap-2.5 overflow-hidden">
+                  <div className="cursor-grab active:cursor-grabbing text-slate-600 hover:text-slate-400 shrink-0 p-0.5">
+                    <GripVertical className="w-4 h-4" />
+                  </div>
                   <span
                     className={`w-6 h-6 shrink-0 flex items-center justify-center rounded-full text-xs font-bold ${
                       idx === 0
-                        ? 'bg-amber-500 text-slate-950'
+                        ? 'bg-amber-500 text-slate-950 shadow-[0_0_8px_rgba(245,158,11,0.4)]'
                         : idx === 1
                         ? 'bg-slate-700 text-slate-200'
                         : 'bg-slate-800 text-slate-400'
@@ -178,12 +253,13 @@ export const RankedChoiceList: React.FC<Props> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 shrink-0 ml-2">
                   <button
                     type="button"
                     onClick={() => moveOption(idx, 'UP')}
                     disabled={idx === 0}
-                    className="p-1.5 text-slate-400 hover:text-white bg-slate-900 rounded-lg hover:bg-slate-800 disabled:opacity-25 transition-colors"
+                    className="p-1.5 text-slate-400 hover:text-white bg-slate-900 rounded-lg hover:bg-slate-800 disabled:opacity-25 transition-colors cursor-pointer"
+                    title="Move up"
                   >
                     <ArrowUp className="w-4 h-4" />
                   </button>
@@ -191,7 +267,8 @@ export const RankedChoiceList: React.FC<Props> = ({
                     type="button"
                     onClick={() => moveOption(idx, 'DOWN')}
                     disabled={idx === orderedOptions.length - 1}
-                    className="p-1.5 text-slate-400 hover:text-white bg-slate-900 rounded-lg hover:bg-slate-800 disabled:opacity-25 transition-colors"
+                    className="p-1.5 text-slate-400 hover:text-white bg-slate-900 rounded-lg hover:bg-slate-800 disabled:opacity-25 transition-colors cursor-pointer"
+                    title="Move down"
                   >
                     <ArrowDown className="w-4 h-4" />
                   </button>

@@ -25,47 +25,78 @@ interface CastVoteBody {
 export async function registerPollRoutes(app: FastifyInstance): Promise<void> {
   const db = getDatabase();
 
-  // GET /api/polls/:id
-  app.get('/api/polls/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
-    const rawId = request.params.id;
-    const pollId = rawId === 'demo' ? DEMO_POLL_ID : rawId;
+    // Helper to format poll data response
+    const formatPollResponse = (poll: any) => {
+      const pollId = poll.id;
+      const options: any[] = db
+        .prepare('SELECT id, text, icon, maps_url as mapsUrl, price_level as priceLevel, details, display_order as displayOrder FROM poll_options WHERE poll_id = ? ORDER BY display_order ASC')
+        .all(pollId);
 
-    const poll: any = db.prepare('SELECT * FROM polls WHERE id = ?').get(pollId);
-    if (!poll) {
-      return reply.status(404).send({ error: 'Poll not found' });
-    }
+      const rawBallots: any[] = db
+        .prepare('SELECT id, voter_id as voterId, voter_name as voterName, preferences_json as preferencesJson, created_at as createdAt FROM ranked_ballots WHERE poll_id = ?')
+        .all(pollId);
 
-    const options: any[] = db
-      .prepare('SELECT id, text, icon, maps_url as mapsUrl, price_level as priceLevel, details, display_order as displayOrder FROM poll_options WHERE poll_id = ? ORDER BY display_order ASC')
-      .all(pollId);
+      const ballots: RankedBallot[] = rawBallots.map((b) => ({
+        voterId: b.voterId,
+        voterName: b.voterName,
+        preferences: JSON.parse(b.preferencesJson || '[]'),
+      }));
 
-    const rawBallots: any[] = db
-      .prepare('SELECT id, voter_id as voterId, voter_name as voterName, preferences_json as preferencesJson, created_at as createdAt FROM ranked_ballots WHERE poll_id = ?')
-      .all(pollId);
+      const candidateIds = options.map((o) => o.id);
+      const irvResult = computeInstantRunoff(candidateIds, ballots);
+      const bordaScores = computeBordaCount(candidateIds, ballots);
 
-    const ballots: RankedBallot[] = rawBallots.map((b) => ({
-      voterId: b.voterId,
-      voterName: b.voterName,
-      preferences: JSON.parse(b.preferencesJson || '[]'),
-    }));
+      const winnerOption = options.find((o) => o.id === irvResult.winnerId);
 
-    const candidateIds = options.map((o) => o.id);
-    const irvResult = computeInstantRunoff(candidateIds, ballots);
-    const bordaScores = computeBordaCount(candidateIds, ballots);
-
-    const winnerOption = options.find((o) => o.id === irvResult.winnerId);
-
-    return {
-      poll,
-      options,
-      ballots,
-      irvResult: {
-        ...irvResult,
-        winner: winnerOption || null,
-      },
-      bordaScores,
+      return {
+        poll,
+        options,
+        ballots,
+        irvResult: {
+          ...irvResult,
+          winner: winnerOption || null,
+        },
+        bordaScores,
+      };
     };
-  });
+
+    // GET /api/polls?eventId=xxx
+    app.get('/api/polls', async (request: FastifyRequest<{ Querystring: { eventId?: string } }>, reply: FastifyReply) => {
+      const { eventId } = request.query;
+      if (eventId) {
+        const targetEventId = eventId === 'demo' ? DEMO_POLL_ID : eventId;
+        const poll: any = db.prepare('SELECT * FROM polls WHERE event_id = ? ORDER BY created_at DESC LIMIT 1').get(targetEventId)
+          || db.prepare('SELECT * FROM polls WHERE id = ?').get(targetEventId);
+        if (poll) {
+          return formatPollResponse(poll);
+        }
+      }
+
+      // Default to demo poll if no specific poll found
+      const demoPoll: any = db.prepare('SELECT * FROM polls WHERE id = ?').get(DEMO_POLL_ID);
+      if (demoPoll) {
+        return formatPollResponse(demoPoll);
+      }
+      return reply.status(404).send({ error: 'No polls found' });
+    });
+
+    // GET /api/polls/:id
+    app.get('/api/polls/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+      const rawId = request.params.id;
+      const pollId = rawId === 'demo' ? DEMO_POLL_ID : rawId;
+
+      let poll: any = db.prepare('SELECT * FROM polls WHERE id = ?').get(pollId);
+      if (!poll) {
+        // Also check if id refers to an event_id
+        poll = db.prepare('SELECT * FROM polls WHERE event_id = ? ORDER BY created_at DESC LIMIT 1').get(pollId);
+      }
+
+      if (!poll) {
+        return reply.status(404).send({ error: 'Poll not found' });
+      }
+
+      return formatPollResponse(poll);
+    });
 
   // POST /api/polls
   app.post('/api/polls', async (request: FastifyRequest<{ Body: CreatePollBody }>, reply: FastifyReply) => {

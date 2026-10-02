@@ -69,6 +69,61 @@ export function useTelegram() {
     }
   };
 
+  const showMainButton = (text: string, onClick: () => void, color = '#10B981', textColor = '#0b0f19') => {
+    try {
+      const mb = window.Telegram?.WebApp?.MainButton;
+      if (mb) {
+        mb.setText(text);
+        mb.setParams({ color, text_color: textColor });
+        mb.onClick(onClick);
+        mb.show();
+        mb.enable();
+      }
+    } catch {
+      // safe fallback
+    }
+  };
+
+  const hideMainButton = () => {
+    try {
+      window.Telegram?.WebApp?.MainButton?.hide();
+    } catch {
+      // safe fallback
+    }
+  };
+
+  const showBackButton = (onClick: () => void) => {
+    try {
+      const bb = window.Telegram?.WebApp?.BackButton;
+      if (bb) {
+        bb.onClick(onClick);
+        bb.show();
+      }
+    } catch {
+      // safe fallback
+    }
+  };
+
+  const hideBackButton = () => {
+    try {
+      window.Telegram?.WebApp?.BackButton?.hide();
+    } catch {
+      // safe fallback
+    }
+  };
+
+  const openTelegramLink = (url: string) => {
+    try {
+      if (window.Telegram?.WebApp?.openTelegramLink) {
+        window.Telegram.WebApp.openTelegramLink(url);
+      } else {
+        window.open(url, '_blank');
+      }
+    } catch {
+      window.open(url, '_blank');
+    }
+  };
+
   return {
     isTelegram,
     user,
@@ -76,6 +131,11 @@ export function useTelegram() {
     hapticSelection,
     hapticSuccess,
     hapticWarning,
+    showMainButton,
+    hideMainButton,
+    showBackButton,
+    hideBackButton,
+    openTelegramLink,
     closeApp,
   };
 }

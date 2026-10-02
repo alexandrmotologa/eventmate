@@ -167,24 +167,39 @@ export const SummaryCardModal: React.FC<Props> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-2">
-          <button
-            type="button"
-            onClick={handleCopyText}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer"
-          >
-            {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-            <span>{copied ? 'Summary Copied!' : 'Copy Summary'}</span>
-          </button>
+        <div className="space-y-2">
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              type="button"
+              onClick={handleCopyText}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+            >
+              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+              <span>{copied ? 'Summary Copied!' : 'Copy Summary'}</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={handleShareTelegram}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-sky-500 hover:bg-sky-400 text-white rounded-xl text-xs font-bold shadow-lg shadow-sky-500/20 transition-all cursor-pointer"
-          >
-            <Share2 className="w-4 h-4" />
-            <span>Share to Telegram</span>
-          </button>
+            <button
+              type="button"
+              onClick={handleShareTelegram}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-sky-500 hover:bg-sky-400 text-white rounded-xl text-xs font-bold shadow-lg shadow-sky-500/20 transition-all cursor-pointer"
+            >
+              <Share2 className="w-4 h-4" />
+              <span>Share to Telegram</span>
+            </button>
+          </div>
+
+          {event.id && (
+            <div className="flex items-center justify-center pt-1">
+              <a
+                href={`/api/events/${event.id}/export-ics`}
+                download
+                className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 hover:underline"
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Download .ics Calendar Event</span>
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>

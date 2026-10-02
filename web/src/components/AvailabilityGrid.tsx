@@ -11,9 +11,11 @@ import {
   RotateCcw,
   RotateCw,
   ArrowLeftRight,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 interface Props {
+  eventId?: string;
   dates: string[];
   startHour: number;
   endHour: number;
@@ -22,11 +24,14 @@ interface Props {
   mySlots: Record<string, 'AVAILABLE' | 'TENTATIVE'>;
   quorumMatrix: Record<string, SlotQuorum>;
   isHeatmapMode: boolean;
+  currentTimezone?: string;
+  eventTimezone?: string;
   onSaveAvailability: (slots: { slotKey: string; state: 'AVAILABLE' | 'TENTATIVE' }[]) => Promise<void>;
   onSelectSlotTooltip?: (quorum: SlotQuorum | null) => void;
 }
 
 export const AvailabilityGrid: React.FC<Props> = ({
+  eventId,
   dates,
   startHour,
   endHour,
@@ -35,14 +40,17 @@ export const AvailabilityGrid: React.FC<Props> = ({
   mySlots: initialMySlots,
   quorumMatrix,
   isHeatmapMode,
+  currentTimezone,
+  eventTimezone,
   onSaveAvailability,
   onSelectSlotTooltip,
 }) => {
-  const { hapticSelection, hapticSuccess } = useTelegram();
+  const { hapticSelection, hapticSuccess, showMainButton, hideMainButton, isTelegram } = useTelegram();
   const [localSlots, setLocalSlots] = useState<Record<string, 'AVAILABLE' | 'TENTATIVE'>>(initialMySlots);
   const [isSaving, setIsSaving] = useState(false);
   const [paintMode, setPaintMode] = useState<'AVAILABLE' | 'TENTATIVE' | 'ERASE'>('AVAILABLE');
   const [isDragging, setIsDragging] = useState(false);
+  const [copiedMarkdown, setCopiedMarkdown] = useState(false);
   const dragModeRef = useRef<'AVAILABLE' | 'TENTATIVE' | 'ERASE' | null>(null);
 
   // Undo / Redo Stack
@@ -178,6 +186,38 @@ export const AvailabilityGrid: React.FC<Props> = ({
     await onSaveAvailability(slotsToSave);
     hapticSuccess();
     setIsSaving(false);
+  };
+
+  // Sync Telegram native MainButton
+  useEffect(() => {
+    if (isTelegram && !isHeatmapMode) {
+      showMainButton('💾 Save Availability', handleSave);
+      return () => hideMainButton();
+    } else {
+      hideMainButton();
+    }
+  }, [isTelegram, isHeatmapMode, localSlots]);
+
+  // Generate Markdown table summary of current painted schedule
+  const handleCopyMarkdown = () => {
+    hapticSelection();
+    let md = `### 📅 Availability: ${currentParticipant.name}\n\n`;
+    md += `| Date | Time | State |\n|---|---|---|\n`;
+
+    const sortedKeys = Object.keys(localSlots).sort();
+    if (sortedKeys.length === 0) {
+      md += `| - | No slots painted | Busy |\n`;
+    } else {
+      for (const k of sortedKeys) {
+        const [d, t] = k.split('T');
+        md += `| ${d} | ${t} | ${localSlots[k]} |\n`;
+      }
+    }
+
+    navigator.clipboard.writeText(md);
+    hapticSuccess();
+    setCopiedMarkdown(true);
+    setTimeout(() => setCopiedMarkdown(false), 2000);
   };
 
   // Smart Paint: Paint or Clear Entire Column (Day)
@@ -396,7 +436,7 @@ export const AvailabilityGrid: React.FC<Props> = ({
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2 text-xs text-slate-400">
             <span className="font-semibold text-slate-200">Heatmap Quorum:</span>
             <div className="flex items-center gap-1">
@@ -412,7 +452,38 @@ export const AvailabilityGrid: React.FC<Props> = ({
               <span className="text-emerald-400 font-semibold">100% (All)</span>
             </div>
           </div>
-          <span className="text-xs text-slate-400 italic">Tap any slot to inspect attendees</span>
+
+          <div className="flex items-center gap-1.5 ml-auto">
+            {eventId && (
+              <a
+                href={`/api/events/${eventId}/export-csv`}
+                download
+                className="px-2.5 py-1 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/90 hover:bg-slate-700 rounded-lg border border-slate-700 transition-colors flex items-center gap-1"
+                title="Download full schedule matrix in CSV"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
+                <span>CSV Matrix</span>
+              </a>
+            )}
+            <button
+              type="button"
+              onClick={handleCopyMarkdown}
+              className="px-2.5 py-1 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/90 hover:bg-slate-700 rounded-lg border border-slate-700 transition-colors flex items-center gap-1 cursor-pointer"
+              title="Copy my schedule table to clipboard"
+            >
+              {copiedMarkdown ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-sky-400" />
+                  <span>Copy Markdown</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       )}
 
@@ -425,7 +496,10 @@ export const AvailabilityGrid: React.FC<Props> = ({
           }}
         >
           {/* Header Corner */}
-          <div className="flex items-center justify-center p-2 text-xs font-semibold text-slate-500">
+          <div
+            className="flex items-center justify-center p-2 text-xs font-semibold text-slate-500"
+            title={currentTimezone ? `Viewing in: ${currentTimezone} (Host: ${eventTimezone || 'UTC'})` : 'Time slots'}
+          >
             <Clock className="w-3.5 h-3.5" />
           </div>
 
