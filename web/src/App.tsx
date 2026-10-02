@@ -172,6 +172,22 @@ export const App: React.FC = () => {
     }
   };
 
+  // Finalize Event
+  const handleFinalizeEvent = async (slotKey?: string) => {
+    if (!event) return;
+    try {
+      const res = await fetch(`/api/events/${event.id}/finalize`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slotKey }),
+      });
+      if (!res.ok) throw new Error('Failed to finalize event');
+      await fetchData();
+    } catch (err: any) {
+      alert(err.message || 'Error finalizing event');
+    }
+  };
+
   // Add Participant
   const handleAddParticipant = async (name: string, avatarColor?: string, isRequired?: boolean) => {
     if (!event) return;
@@ -440,6 +456,7 @@ export const App: React.FC = () => {
           event={event}
           goldenHours={goldenHours}
           pollData={pollData}
+          onFinalize={handleFinalizeEvent}
         />
       )}
 

@@ -37,6 +37,7 @@ export function getDatabase(customPath?: string): DatabaseSync {
       end_hour INTEGER NOT NULL DEFAULT 22,
       slot_duration_minutes INTEGER NOT NULL DEFAULT 30,
       locked_slot TEXT,
+      status TEXT NOT NULL DEFAULT 'PLANNING',
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
@@ -99,10 +100,11 @@ export function getDatabase(customPath?: string): DatabaseSync {
 
   // Safe backward-compatible migrations
   try {
+    db.exec("ALTER TABLE events ADD COLUMN status TEXT NOT NULL DEFAULT 'PLANNING';");
+  } catch {}
+  try {
     db.exec('ALTER TABLE participants ADD COLUMN is_required INTEGER NOT NULL DEFAULT 0;');
-  } catch {
-    // Column already exists
-  }
+  } catch {}
   try {
     db.exec('ALTER TABLE poll_options ADD COLUMN maps_url TEXT;');
   } catch {}

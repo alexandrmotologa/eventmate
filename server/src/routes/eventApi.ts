@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { getDatabase } from '../db/database.js';
 import { computeQuorumMatrix, findGoldenHours, Participant, SlotAvailability } from '../engine/overlap.js';
 import { DEMO_EVENT_ID } from '../engine/seeder.js';
+import { generateCalendarLinks } from '../utils/calendarLinks.js';
 
 interface CreateEventBody {
   title: string;
@@ -77,6 +78,29 @@ export async function registerEventRoutes(app: FastifyInstance): Promise<void> {
       .prepare('SELECT id, title, status FROM polls WHERE event_id = ? ORDER BY created_at DESC LIMIT 1')
       .get(eventId);
 
+    // Generate web calendar links for the best/locked slot
+    let targetSlot = event.locked_slot;
+    if (!targetSlot && goldenHours.length > 0) {
+      targetSlot = goldenHours[0].startSlot;
+    }
+    if (!targetSlot && dates.length > 0) {
+      targetSlot = `${dates[0]}T${event.start_hour.toString().padStart(2, '0')}:00`;
+    }
+
+    let calendarLinks = null;
+    if (targetSlot) {
+      const [slotDate, slotTime] = targetSlot.split('T');
+      const [sh, sm] = (slotTime || '19:00').split(':').map(Number);
+      const startDateTime = new Date(`${slotDate}T${sh.toString().padStart(2, '0')}:${sm.toString().padStart(2, '0')}:00Z`);
+      const endDateTime = new Date(startDateTime.getTime() + 90 * 60 * 1000);
+      calendarLinks = generateCalendarLinks({
+        title: event.title,
+        description: event.description || 'Scheduled via EventMate on Telegram.',
+        startDateTime,
+        endDateTime,
+      });
+    }
+
     return {
       event: {
         ...event,
@@ -89,6 +113,7 @@ export async function registerEventRoutes(app: FastifyInstance): Promise<void> {
       goldenHours,
       pollId: linkedPoll?.id || (eventId === DEMO_EVENT_ID ? 'demo-poll-dinner-location' : null),
       poll: linkedPoll || null,
+      calendarLinks,
     };
   });
 
@@ -441,6 +466,126 @@ export async function registerEventRoutes(app: FastifyInstance): Promise<void> {
       reply.header('Content-Type', 'text/csv; charset=utf-8');
       reply.header('Content-Disposition', `attachment; filename="eventmate-${eventId}-matrix.csv"`);
       return reply.send(rows.join('\r\n'));
+    }
+  );
+
+  // GET /api/events/:id/calendar-links
+  app.get(
+    '/api/events/:id/calendar-links',
+    async (
+      request: FastifyRequest<{
+        Params: { id: string };
+        Querystring: { slotKey?: string; durationMinutes?: string };
+      }>,
+      reply: FastifyReply
+    ) => {
+      const rawId = request.params.id;
+      const eventId = rawId === 'demo' ? DEMO_EVENT_ID : rawId;
+
+      const event: any = db.prepare('SELECT * FROM events WHERE id = ?').get(eventId);
+      if (!event) {
+        return reply.status(404).send({ error: 'Event not found' });
+      }
+
+      const dates: string[] = JSON.parse(event.dates_json || '[]');
+      let targetSlot = request.query.slotKey || event.locked_slot;
+
+      if (!targetSlot) {
+        const participants: any[] = db
+          .prepare('SELECT id, name, avatar_color as avatarColor, is_required as isRequired FROM participants WHERE event_id = ?')
+          .all(eventId);
+        const rawSlots: any[] = db
+          .prepare('SELECT participant_id as participantId, slot_key as slotKey, state FROM availability_slots WHERE event_id = ?')
+          .all(eventId);
+
+        const domainParticipants: Participant[] = participants.map((p) => ({
+          id: p.id,
+          name: p.name,
+          avatarColor: p.avatarColor,
+          isRequired: Boolean(p.isRequired),
+        }));
+        const domainSlots: SlotAvailability[] = rawSlots.map((s) => ({
+          participantId: s.participantId,
+          slotKey: s.slotKey,
+          state: s.state,
+        }));
+
+        const goldenHours = findGoldenHours(
+          dates,
+          event.start_hour,
+          event.end_hour,
+          event.slot_duration_minutes,
+          domainParticipants,
+          domainSlots,
+          60
+        );
+
+        if (goldenHours.length > 0) {
+          targetSlot = goldenHours[0].startSlot;
+        } else if (dates.length > 0) {
+          targetSlot = `${dates[0]}T${event.start_hour.toString().padStart(2, '0')}:00`;
+        }
+      }
+
+      targetSlot = targetSlot || '2026-09-18T19:00';
+      const [slotDate, slotTime] = targetSlot.split('T');
+      const [sh, sm] = (slotTime || '19:00').split(':').map(Number);
+      const duration = parseInt(request.query.durationMinutes || '90', 10);
+
+      const startDateTime = new Date(`${slotDate}T${sh.toString().padStart(2, '0')}:${sm.toString().padStart(2, '0')}:00Z`);
+      const endDateTime = new Date(startDateTime.getTime() + duration * 60 * 1000);
+
+      const links = generateCalendarLinks({
+        title: event.title,
+        description: event.description || 'Scheduled via EventMate on Telegram.',
+        startDateTime,
+        endDateTime,
+      });
+
+      return {
+        eventId,
+        targetSlot,
+        startDateTime: startDateTime.toISOString(),
+        endDateTime: endDateTime.toISOString(),
+        ...links,
+        icsUrl: `/api/events/${eventId}/export-ics`,
+      };
+    }
+  );
+
+  // POST /api/events/:id/finalize
+  app.post(
+    '/api/events/:id/finalize',
+    async (
+      request: FastifyRequest<{
+        Params: { id: string };
+        Body: { slotKey?: string; message?: string };
+      }>,
+      reply: FastifyReply
+    ) => {
+      const rawId = request.params.id;
+      const eventId = rawId === 'demo' ? DEMO_EVENT_ID : rawId;
+      const { slotKey } = request.body || {};
+
+      const event: any = db.prepare('SELECT * FROM events WHERE id = ?').get(eventId);
+      if (!event) {
+        return reply.status(404).send({ error: 'Event not found' });
+      }
+
+      const lockedSlot = slotKey || event.locked_slot;
+      db.prepare('UPDATE events SET status = ?, locked_slot = ? WHERE id = ?').run(
+        'FINALIZED',
+        lockedSlot || null,
+        eventId
+      );
+
+      return {
+        success: true,
+        eventId,
+        status: 'FINALIZED',
+        lockedSlot,
+        message: 'Event schedule has been officially finalized.',
+      };
     }
   );
 }

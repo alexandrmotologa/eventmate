@@ -10,7 +10,16 @@ export interface EventData {
   end_hour: number;
   slot_duration_minutes: number;
   locked_slot: string | null;
+  status?: 'PLANNING' | 'FINALIZED';
   created_at: string;
+}
+
+export interface CalendarLinks {
+  googleUrl: string;
+  outlookUrl: string;
+  yahooUrl: string;
+  startUtc: string;
+  endUtc: string;
 }
 
 export interface Participant {
